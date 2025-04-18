@@ -204,6 +204,7 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
+		printf("teste");
 		status = Q_HANDLED();
 		break;
 	}
