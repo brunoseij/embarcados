@@ -63,18 +63,18 @@
 // <i>Disable assertions and other self monitoring features
 // <i>in development build configurations (NDEBUG undefined).
 // <i>NOTE: Disabling safety *violates* functional safety standards.
-//#ifndef NDEBUG
-//#define Q_UNSAFE
-//#endif
+// #ifndef NDEBUG
+// #define Q_UNSAFE
+// #endif
 // </c>
 
 // <c3>Disable QP FuSa in production release (NOT recommended)
 // <i>Disable assertions and other safety features
 // <i>in the release build configurations (NDEBUG defined).
 // <i>NOTE: Disabling safety *violates* functional safety standards.
-//#ifdef NDEBUG
-//#define Q_UNSAFE
-//#endif
+// #ifdef NDEBUG
+// #define Q_UNSAFE
+// #endif
 // </c>
 
 // </h>
@@ -89,7 +89,7 @@
 //   <4U=>4
 // <i>Size of the QEvt signal for QEP/QF [bytes]
 // <i>Default: 2
-#define Q_SIGNAL_SIZE  2U
+#define Q_SIGNAL_SIZE 2U
 
 // </h>
 
@@ -100,7 +100,7 @@
 // <o>Maximum # Active Objects (QF_MAX_ACTIVE) <1-64>
 // <i>Maximum # Active Objects in the system <1..64>
 // <i>Default: 32
-#define QF_MAX_ACTIVE  64U
+#define QF_MAX_ACTIVE 64U
 
 // <o>Maximum # event pools (QF_MAX_EPOOL)
 // <0=>0 no event pools
@@ -126,7 +126,7 @@
 //   <4U=>4
 // <i>Size of the dynamic events for QF [bytes]
 // <i>Default: 2 (64K bytes maximum event size)
-#define QF_EVENT_SIZ_SIZE   2U
+#define QF_EVENT_SIZ_SIZE 2U
 
 // <o>Time event counter size (QF_TIMEEVT_CTR_SIZE)
 //   <1U=>1
@@ -141,7 +141,7 @@
 //   <2U=>2
 // <i>Size of event queue counter [bytes]
 // <i>Default: 1 (255 events maximum in a queue)
-#define QF_EQUEUE_CTR_SIZE  2U
+#define QF_EQUEUE_CTR_SIZE 2U
 
 // <o>Memory pool counter size (QF_MPOOL_CTR_SIZE)
 //   <1U=>1
@@ -172,22 +172,22 @@
 
 // <c1>Enable context switch callback *without* QS (QF_ON_CONTEXT_SW)
 // <i>Context switch callback QF_onContextSw() when Q_SPY is undefined.
-//#ifndef Q_SPY
-//#define QF_ON_CONTEXT_SW
-//#endif
+// #ifndef Q_SPY
+// #define QF_ON_CONTEXT_SW
+// #endif
 // </c>
 
 // <c1>Enable context switch callback *with* QS (QF_ON_CONTEXT_SW)
 // <i>Context switch callback QF_onContextSw() when Q_SPY is defined.
-//#ifdef Q_SPY
-//#define QF_ON_CONTEXT_SW
-//#endif
+// #ifdef Q_SPY
+// #define QF_ON_CONTEXT_SW
+// #endif
 // </c>
 
 // <c2>Enable memory isolation (QF_MEM_ISOLATE)
 // <i>Memory isolation (requires MPU)
 // <i>NOTE: implies QF_ON_CONTEXT_SW.
-//#define QF_MEM_ISOLATE
+// #define QF_MEM_ISOLATE
 // </c>
 
 // </h>

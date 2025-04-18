@@ -11,7 +11,7 @@
 /.mxproject*
 /STM32CubeIDE.workspace
 /.idea/
-/.vscode/
+/src/.vscode/
 
 # Backup files
 *~

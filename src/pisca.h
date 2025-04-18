@@ -19,8 +19,9 @@
 		 "cabine1",// 9
 		 "cabine2",// 10
 		 "cabine3",// 11*/
-enum DPPSignals {
-    PORTA1_SIG = Q_USER_SIG, /* published by BSP */
+enum DPPSignals
+{
+	PORTA1_SIG = Q_USER_SIG, /* published by BSP */
 	PORTA2_SIG,
 	PORTA3_SIG,
 	SOBE1_SIG,
@@ -38,27 +39,26 @@ enum DPPSignals {
 	PORTAFECHADA1_SIG,
 	PORTAFECHADA2_SIG,
 	PORTAFECHADA3_SIG,
-    MAX_PUB_SIG,          /* the last published signal */
+	MAX_PUB_SIG, /* the last published signal */
 
-    B2_SIG,           /* posted direclty to Pisca from BSP */
-    MAX_SIG               /* the last signal */
+	B2_SIG, /* posted direclty to Pisca from BSP */
+	MAX_SIG /* the last signal */
 };
 
+typedef struct PiscaEvtTag
+{
+	/* protected: */
+	QEvt super;
 
-typedef struct PiscaEvtTag {
-/* protected: */
-    QEvt super;
-
-/* public: */
-    uint8_t i;
+	/* public: */
+	uint8_t i;
 } PiscaEvt;
-
 
 #define QUEUESIZE ((uint8_t)5)
 #define POOLSIZE ((uint8_t)5)
 
 void Pisca_ctor(void);
 
-extern QActive * const AO_Pisca;
+extern QActive *const AO_Pisca;
 
 #endif /* PISCA_H_ */

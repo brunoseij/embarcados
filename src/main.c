@@ -31,12 +31,13 @@
 // <www.state-machine.com/licensing>
 // <info@state-machine.com>
 //============================================================================
-#include "qpc.h"          // QP/C real-time embedded framework
-#include "pisca.h"          // DPP Application interface
-#include "bsp.h"          // Board Support Package
+#include "qpc.h"   // QP/C real-time embedded framework
+#include "pisca.h" // DPP Application interface
+#include "bsp.h"   // Board Support Package
 
 //............................................................................
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     QF_init();            // initialize the framework
     BSP_init(argc, argv); // initialize the BSP
     BSP_start();          // start the AOs/Threads

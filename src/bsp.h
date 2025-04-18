@@ -34,9 +34,9 @@
 #ifndef BSP_H_
 #define BSP_H_
 
-#define BSP_TICKS_PER_SEC    100U
-#define BUFLEN  512  //Max length of buffer
-#define PORTIN  8888   //The port on which to listen for incoming data
+#define BSP_TICKS_PER_SEC 100U
+#define BUFLEN 512  // Max length of buffer
+#define PORTIN 8888 // The port on which to listen for incoming data
 #define PORTOUT 8889
 
 void BSP_init(int argc, char *argv[]);
