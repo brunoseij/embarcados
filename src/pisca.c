@@ -10,8 +10,8 @@
 #include <stdio.h>
 
 /* Active object class -----------------------------------------------------*/
-#define ON_TIME \
-	(QTimeEvtCtr)(1 * BSP_TICKS_PER_SEC)
+#define DOOR_TIMEOUT \
+	(QTimeEvtCtr)(5 * BSP_TICKS_PER_SEC)
 
 enum InternalSignals
 { /* internal signals */
@@ -207,16 +207,11 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 		status = Q_TRAN(&Porta_aberta);
 		break;
 	}
-	case TIMEOUT_SIG:
+	default:
 	{
 		trataSinalSobe(e->sig);
 		trataSinalDesce(e->sig);
 		trataSinalCabine(e->sig);
-		status = Q_HANDLED();
-		break;
-	}
-	default:
-	{
 		status = Q_SUPER(&QHsm_top);
 		break;
 	}
@@ -241,6 +236,13 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 	case CABINE3_SIG:
 	{
 		trataSinalCabine(e->sig);
+		status = Q_TRAN(&Fechando_Porta);
+		break;
+	}
+	case TIMEOUT_SIG:
+	{
+		printf("tentar fechar a porta");
+		fflush(stdout);
 		status = Q_TRAN(&Fechando_Porta);
 		break;
 	}
@@ -278,9 +280,8 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	case PORTA2_SIG:
 	case PORTA3_SIG:
 	{
-		bsp_acionaporta(andar, 0);
-		bsp_acionaporta(andar, 1);
-		status = Q_HANDLED();
+		status = Q_TRAN(&Abrindo_Porta);
+		QTimeEvt_armX	(&me->timeEvt , DOOR_TIMEOUT, 0);
 		break;
 	}
 	default:
