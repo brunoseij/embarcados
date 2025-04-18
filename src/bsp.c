@@ -280,7 +280,7 @@ void *udpServer()
 							case 23:
 							{
 								static QEvt const pr3Evt = QEVT_INITIALIZER(PARADO3_SIG);
-								QACTIVE_PUBLISH(&pr4Evt, NULL);
+								QACTIVE_PUBLISH(&pr3Evt, NULL);
 								break;
 							}
 							}

@@ -91,6 +91,104 @@ static QState Elevador_initial(Pisca *const me, QEvt const *const e)
 	return Q_TRAN(&Abrindo_Porta);
 }
 
+int andar = 2;
+
+void trataSinalPorta(enum DPPSignals sinal) {
+	switch (sinal)
+	{
+	case PORTA1_SIG:
+	{
+		bsp_acionaporta(1, -1);
+		break;
+	}
+	case PORTA2_SIG:
+	{
+		bsp_acionaporta(2, -1);
+		break;
+	}
+	case PORTA3_SIG:
+	{
+		bsp_acionaporta(3, -1);
+		break;
+	}
+	default:
+		break;
+	}
+	return;
+}
+
+void trataSinalSobe(enum DPPSignals sinal) {
+	switch (sinal)
+	{
+	case SOBE1_SIG:
+	{
+		bsp_sobeon(1);
+		break;
+	}
+	case SOBE2_SIG:
+	{
+		bsp_sobeon(2);
+		break;
+	}
+	case SOBE3_SIG:
+	{
+		bsp_sobeon(3);
+		break;
+	}
+	default:
+		break;
+	}
+	return;
+}
+
+void trataSinalDesce(enum DPPSignals sinal) {
+	switch (sinal)
+	{
+	case DESCE1_SIG:
+	{
+		bsp_desceon(1);
+		break;
+	}
+	case DESCE2_SIG:
+	{
+		bsp_desceon(2);
+		break;
+	}
+	case DESCE3_SIG:
+	{
+		bsp_desceon(3);
+		break;
+	}
+	default:
+		break;
+	}
+	return;
+}
+
+void trataSinalCabine(enum DPPSignals sinal) {
+	switch (sinal)
+	{
+	case CABINE1_SIG:
+	{
+		bsp_cabineon(1);
+		break;
+	}
+	case CABINE2_SIG:
+	{
+		bsp_cabineon(2);
+		break;
+	}
+	case CABINE3_SIG:
+	{
+		bsp_cabineon(3);
+		break;
+	}
+	default:
+		break;
+	}
+	return;
+}
+
 static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 {
 	QState status;
@@ -98,93 +196,22 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
-		// status = Q_TRAN(&Abrindo_Porta);
+		bsp_acionaporta(andar, -1);
 		status = Q_HANDLED();
 		break;
 	}
-	case PORTA1_SIG:
+	case PORTAABERTA1_SIG:
+	case PORTAABERTA2_SIG:
+	case PORTAABERTA3_SIG:
 	{
-		printf("chegou evento porta1\n");
-		fflush(stdout);
-		printf("teste\n");
-		bsp_acionaporta(1, -1);
-		status = Q_HANDLED();
-		break;
-	}
-	case PORTA2_SIG:
-	{
-		printf("chegou evento porta2\n");
-		fflush(stdout);
-		bsp_acionaporta(2, -1);
-		status = Q_HANDLED();
-		break;
-	}
-	case PORTA3_SIG:
-	{
-		printf("chegou evento porta3\n");
-		fflush(stdout);
-		bsp_acionaporta(3, -1);
-		status = Q_HANDLED();
-		break;
-	}
-	case SOBE1_SIG:
-	{
-		printf("alo");
-		fflush(stdout);
-		bsp_sobeon(1);
-		status = Q_HANDLED();
-		break;
-	}
-	case SOBE2_SIG:
-	{
-		bsp_sobeon(2);
-		status = Q_HANDLED();
-		break;
-	}
-	case SOBE3_SIG:
-	{
-		bsp_sobeon(3);
-		status = Q_HANDLED();
-		break;
-	}
-	case DESCE1_SIG:
-	{
-		bsp_desceon(1);
-		status = Q_HANDLED();
-		break;
-	}
-	case DESCE2_SIG:
-	{
-		bsp_desceon(2);
-		status = Q_HANDLED();
-		break;
-	}
-	case DESCE3_SIG:
-	{
-		bsp_desceon(3);
-		status = Q_HANDLED();
-		break;
-	}
-	case CABINE1_SIG:
-	{
-		bsp_cabineon(1);
-		status = Q_HANDLED();
-		break;
-	}
-	case CABINE2_SIG:
-	{
-		bsp_cabineon(2);
-		status = Q_HANDLED();
-		break;
-	}
-	case CABINE3_SIG:
-	{
-		bsp_cabineon(3);
-		status = Q_HANDLED();
+		status = Q_TRAN(&Porta_aberta);
 		break;
 	}
 	case TIMEOUT_SIG:
 	{
+		trataSinalSobe(e->sig);
+		trataSinalDesce(e->sig);
+		trataSinalCabine(e->sig);
 		status = Q_HANDLED();
 		break;
 	}
@@ -204,12 +231,24 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
-		printf("teste");
+		printf("Porta_aberta");
+		fflush(stdout);
 		status = Q_HANDLED();
+		break;
+	}
+	case CABINE1_SIG:
+	case CABINE2_SIG:
+	case CABINE3_SIG:
+	{
+		trataSinalCabine(e->sig);
+		status = Q_TRAN(&Fechando_Porta);
 		break;
 	}
 	default:
 	{
+		trataSinalSobe(e->sig);
+		trataSinalDesce(e->sig);
+		trataSinalCabine(e->sig);
 		status = Q_SUPER(&QHsm_top);
 		break;
 	}
@@ -224,7 +263,24 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
-		status = Q_TRAN(&Abrindo_Porta);
+		bsp_acionaporta(andar, 1);
+		status = Q_HANDLED();
+		break;
+	}
+	case PORTAFECHADA1_SIG:
+	case PORTAFECHADA2_SIG:
+	case PORTAFECHADA3_SIG:
+	{
+		status = Q_TRAN(&Verifica_Destino);
+		break;
+	}
+	case PORTA1_SIG:
+	case PORTA2_SIG:
+	case PORTA3_SIG:
+	{
+		bsp_acionaporta(andar, 0);
+		bsp_acionaporta(andar, 1);
+		status = Q_HANDLED();
 		break;
 	}
 	default:
@@ -236,7 +292,7 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
-static QState Verifica_destino(Pisca *const me, QEvt const *const e)
+static QState Verifica_Destino(Pisca *const me, QEvt const *const e)
 {
 	QState status;
 	switch (e->sig)
