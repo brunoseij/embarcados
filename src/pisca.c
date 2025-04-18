@@ -154,6 +154,36 @@ static QState Pisca_on(Pisca * const me, QEvt const * const e) {
 		status = Q_HANDLED();
 		break;
 	}
+    case DESCE1_SIG: {
+    	bsp_desceon(1);
+    	status = Q_HANDLED();
+    	break;
+    }
+    case DESCE2_SIG: {
+        bsp_desceon(2);
+        status = Q_HANDLED();
+        break;
+    }
+    case DESCE3_SIG: {
+        bsp_desceon(3);
+        status = Q_HANDLED();
+        break;
+    }
+    case CABINE1_SIG: {
+    	bsp_cabineon(1);
+        status = Q_HANDLED();
+        break;
+    }
+    case CABINE2_SIG: {
+    	bsp_cabineon(2);
+        status = Q_HANDLED();
+        break;
+    }
+    case CABINE3_SIG: {
+    	bsp_cabineon(3);
+        status = Q_HANDLED();
+        break;
+    }
     case TIMEOUT_SIG:{
     	status = Q_HANDLED();
     	break;

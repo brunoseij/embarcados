@@ -66,12 +66,12 @@ char *in_signals[] = {
 		 "cabine1",// 9
 		 "cabine2",// 10
 		 "cabine3",// 11
-		// "PortaAberta1", // 0
-		// "PortaAberta2", // 1
-		// "PortaAberta3", // 2
-		// "PortaFechada1", // 3
-		// "PortaFechada2",// 4
-		// "PortaFechada3",// 5
+		 "PortaAberta1", // 0
+		 "PortaAberta2", // 1
+		 "PortaAberta3", // 2
+		 "PortaFechada1", // 3
+		 "PortaFechada2",// 4
+		 "PortaFechada3",// 5
 		// "Andar1",// 6
 		// "Andar2",// 7
 		// "Andar3",// 8
@@ -132,7 +132,7 @@ void * udpServer()
             	buf[recv_len]='\0';
             	 printf("%s \n", buf);
             	 fflush(stdout);
-            	for(i = 0; i < 11; i++)
+            	for(i = 0; i < 18; i++)
             	{
             		if(strcmp(buf, in_signals[i])==0)
 					
@@ -168,42 +168,67 @@ void * udpServer()
 								QACTIVE_PUBLISH(&s3Evt, NULL);
                                  break;
                              }
-							// case 6: {
-                            //     break;
-                            // }
-							// case 7: {
-                            //     break;
-                            // }
-							// case 8: {
-                            //     break;
-                            // }
-							// case 9: {
-                            //     break;
-                            // }
-							// case 10: {
-                            //     break;
-                            // }
-							// case 11: {
-                            //     break;
-                            // }
-							// case 4: {
-                            //     break;
-                            // }
-							// case 4: {
-                            //     break;
-                            // }
-							// case 4: {
-                            //     break;
-                            // }
-							// case 4: {
-                            //     break;
-                            // }
-							// case 4: {
-                            //     break;
-                            // }
-							// case 4: {
-                            //     break;
-                            // }
+							 case 6: {
+
+								 static QEvt const d1Evt = QEVT_INITIALIZER(DESCE1_SIG);
+								 QACTIVE_PUBLISH(&d1Evt, NULL);
+								 break;
+							 }
+							 case 7: {
+								 static QEvt const d2Evt = QEVT_INITIALIZER(DESCE2_SIG);
+								 QACTIVE_PUBLISH(&d2Evt, NULL);
+								 break;
+							 }
+							 case 8: {
+								 static QEvt const d3Evt = QEVT_INITIALIZER(DESCE3_SIG);
+								 QACTIVE_PUBLISH(&d3Evt, NULL);
+								 break;
+							 }
+							 case 9: {
+								 static QEvt const c1Evt = QEVT_INITIALIZER(CABINE1_SIG);
+								 QACTIVE_PUBLISH(&c1Evt, NULL);
+                                 break;
+                             }
+							 case 10: {
+								 static QEvt const c2Evt = QEVT_INITIALIZER(CABINE2_SIG);
+								 QACTIVE_PUBLISH(&c2Evt, NULL);
+                                 break;
+                             }
+							 case 11: {
+								 static QEvt const c3Evt = QEVT_INITIALIZER(CABINE3_SIG);
+								 QACTIVE_PUBLISH(&c3Evt, NULL);
+                                 break;
+                             }
+							 case 12: {
+								 static QEvt const pa1Evt = QEVT_INITIALIZER(PORTAABERTA1_SIG);
+								 QACTIVE_PUBLISH(&pa1Evt, NULL);
+                                 break;
+                             }
+							 case 13: {
+								 static QEvt const pa2Evt = QEVT_INITIALIZER(PORTAABERTA2_SIG);
+								 QACTIVE_PUBLISH(&pa2Evt, NULL);
+                                 break;
+                             }
+							 case 14: {
+								 static QEvt const pa3Evt = QEVT_INITIALIZER(PORTAABERTA3_SIG);
+								 QACTIVE_PUBLISH(&pa3Evt, NULL);
+                                 break;
+                             }
+							 case 15: {
+								 static QEvt const pf1Evt = QEVT_INITIALIZER(PORTAFECHADA1_SIG);
+								 QACTIVE_PUBLISH(&pf1Evt, NULL);
+                                 break;
+                             }
+							 case 16: {
+								 static QEvt const pf2Evt = QEVT_INITIALIZER(PORTAFECHADA2_SIG);
+								 QACTIVE_PUBLISH(&pf2Evt, NULL);
+                                 break;
+                             }
+							 case 17: {
+								 static QEvt const pf3Evt = QEVT_INITIALIZER(PORTAFECHADA3_SIG);
+								 QACTIVE_PUBLISH(&pf3Evt, NULL);
+                                 break;
+                             }
 							// case 4: {
                             //     break;
                             // }
@@ -270,6 +295,49 @@ void bsp_sobeoff(int andar){
 			}
 		}
 		printf("sobe off %d\n", andar);
+		fflush(stdout);
+		sendUDP(signal);
+}
+
+// elevadordesceon
+void bsp_desceon(int andar){
+	char* signal;
+	switch (andar){
+		case 1: {
+			signal = "elevadordesceon1";
+			break;
+		}
+		case 2: {
+			signal = "elevadordesceon2";
+			break;
+		}
+		case 3: {
+			signal = "elevadordesceon3";
+			break;
+		}
+	}
+	printf("desce on %d\n", andar);
+	fflush(stdout);
+	sendUDP(signal);
+}
+
+void bsp_desceoff(int andar){
+	char* signal;
+		switch (andar){
+			case 1: {
+				signal = "elevadordesceoff1";
+				break;
+			}
+			case 2: {
+				signal = "elevadordesceoff2";
+				break;
+			}
+			case 3: {
+				signal = "elevadordesceoff3";
+				break;
+			}
+		}
+		printf("desce off %d\n", andar);
 		fflush(stdout);
 		sendUDP(signal);
 }

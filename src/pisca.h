@@ -32,6 +32,12 @@ enum DPPSignals {
 	CABINE1_SIG,
 	CABINE2_SIG,
 	CABINE3_SIG,
+	PORTAABERTA1_SIG,
+	PORTAABERTA2_SIG,
+	PORTAABERTA3_SIG,
+	PORTAFECHADA1_SIG,
+	PORTAFECHADA2_SIG,
+	PORTAFECHADA3_SIG,
     MAX_PUB_SIG,          /* the last published signal */
 
     B2_SIG,           /* posted direclty to Pisca from BSP */
