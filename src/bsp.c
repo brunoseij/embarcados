@@ -64,19 +64,18 @@ char *in_signals[] = {
 	"cabine1",		 // 9
 	"cabine2",		 // 10
 	"cabine3",		 // 11
-	"PortaAberta1",	 // 0
-	"PortaAberta2",	 // 1
-	"PortaAberta3",	 // 2
-	"PortaFechada1", // 3
-	"PortaFechada2", // 4
-	"PortaFechada3", // 5
-					 // "Andar1",// 6
-					 // "Andar2",// 7
-					 // "Andar3",// 8
-					 // "Parado1",// 9
-					 // "Parado2",// 10
-					 // "Parado3",// 11
-
+	"PortaAberta1",	 // 12
+	"PortaAberta2",	 // 13
+	"PortaAberta3",  // 14
+	"PortaFechada1", // 15
+	"PortaFechada2", // 16
+	"PortaFechada3", // 17
+	"Andar1",        // 18
+	"Andar2",        // 19
+	"Andar3",        // 20
+	"Parado1",       // 21
+	"Parado2",       // 22
+	"Parado3",       // 23
 };
 
 static uint32_t l_rnd;
@@ -132,7 +131,7 @@ void *udpServer()
 					buf[recv_len] = '\0';
 					printf("%s \n", buf);
 					fflush(stdout);
-					for (i = 0; i < 18; i++)
+					for (i = 0; i < 24; i++)
 					{
 						if (strcmp(buf, in_signals[i]) == 0)
 
@@ -248,24 +247,42 @@ void *udpServer()
 								QACTIVE_PUBLISH(&pf3Evt, NULL);
 								break;
 							}
-								// case 4: {
-								//     break;
-								// }
-								// case 4: {
-								//     break;
-								// }
-								// case 4: {
-								//     break;
-								// }
-								// case 4: {
-								//     break;
-								// }
-								// case 4: {
-								//     break;
-								// }
-								// case 4: {
-								//     break;
-								// }
+							case 18:
+							{
+								static QEvt const a1Evt = QEVT_INITIALIZER(ANDAR1_SIG);
+								QACTIVE_PUBLISH(&a1Evt, NULL);
+								break;
+							}
+							case 19:
+							{
+								static QEvt const a2Evt = QEVT_INITIALIZER(ANDAR2_SIG);
+								QACTIVE_PUBLISH(&a2Evt, NULL);
+								break;
+							}
+							case 20:
+							{
+								static QEvt const a3Evt = QEVT_INITIALIZER(ANDAR3_SIG);
+								QACTIVE_PUBLISH(&a3Evt, NULL);
+								break;
+							}
+							case 21:
+							{
+								static QEvt const pr1Evt = QEVT_INITIALIZER(PARADO1_SIG);
+								QACTIVE_PUBLISH(&pr1Evt, NULL);
+								break;
+							}
+							case 22:
+							{
+								static QEvt const pr2Evt = QEVT_INITIALIZER(PARADO2_SIG);
+								QACTIVE_PUBLISH(&pr2Evt, NULL);
+								break;
+							}
+							case 23:
+							{
+								static QEvt const pr3Evt = QEVT_INITIALIZER(PARADO3_SIG);
+								QACTIVE_PUBLISH(&pr4Evt, NULL);
+								break;
+							}
 							}
 						}
 					}

@@ -9,16 +9,6 @@
 #define PISCA_H_
 #include "qp_port.h"
 
-/*
- *  "sobe1",// 3
-		 "sobe2",// 4
-		 "sobe3",// 5
-		 "desce1",// 6
-		 "desce2",// 7
-		 "desce3",// 8
-		 "cabine1",// 9
-		 "cabine2",// 10
-		 "cabine3",// 11*/
 enum DPPSignals
 {
 	PORTA1_SIG = Q_USER_SIG, /* published by BSP */
@@ -39,6 +29,12 @@ enum DPPSignals
 	PORTAFECHADA1_SIG,
 	PORTAFECHADA2_SIG,
 	PORTAFECHADA3_SIG,
+	ANDAR1_SIG,
+	ANDAR2_SIG,
+	ANDAR3_SIG,
+	PARADO1_SIG,
+	PARADO2_SIG,
+	PARADO3_SIG,
 	MAX_PUB_SIG, /* the last published signal */
 
 	B2_SIG, /* posted direclty to Pisca from BSP */

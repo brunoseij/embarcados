@@ -72,6 +72,22 @@ static QState Elevador_initial(Pisca *const me, QEvt const *const e)
 	QActive_subscribe(&me->super, CABINE2_SIG);
 	QActive_subscribe(&me->super, CABINE3_SIG);
 
+	QActive_subscribe(&me->super, PORTAABERTA1_SIG);
+	QActive_subscribe(&me->super, PORTAABERTA2_SIG);
+	QActive_subscribe(&me->super, PORTAABERTA3_SIG);
+
+	QActive_subscribe(&me->super, PORTAFECHADA1_SIG);
+	QActive_subscribe(&me->super, PORTAFECHADA2_SIG);
+	QActive_subscribe(&me->super, PORTAFECHADA3_SIG);
+
+	QActive_subscribe(&me->super, ANDAR1_SIG);
+	QActive_subscribe(&me->super, ANDAR2_SIG);
+	QActive_subscribe(&me->super, ANDAR3_SIG);
+
+	QActive_subscribe(&me->super, PARADO1_SIG);
+	QActive_subscribe(&me->super, PARADO2_SIG);
+	QActive_subscribe(&me->super, PARADO3_SIG);
+
 	return Q_TRAN(&Abrindo_Porta);
 }
 
