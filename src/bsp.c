@@ -129,8 +129,8 @@ void *udpServer()
 				{
 
 					buf[recv_len] = '\0';
-					printf("%s \n", buf);
-					fflush(stdout);
+//					printf("%s \n", buf);
+//					fflush(stdout);
 					for (i = 0; i < 24; i++)
 					{
 						if (strcmp(buf, in_signals[i]) == 0)
@@ -315,8 +315,8 @@ void bsp_sobeon(int andar)
 		break;
 	}
 	}
-	printf("sobe on %d\n", andar);
-	fflush(stdout);
+//	printf("sobe on %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -341,8 +341,8 @@ void bsp_sobeoff(int andar)
 		break;
 	}
 	}
-	printf("sobe off %d\n", andar);
-	fflush(stdout);
+//	printf("sobe off %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -368,8 +368,8 @@ void bsp_desceon(int andar)
 		break;
 	}
 	}
-	printf("desce on %d\n", andar);
-	fflush(stdout);
+//	printf("desce on %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -394,8 +394,8 @@ void bsp_desceoff(int andar)
 		break;
 	}
 	}
-	printf("desce off %d\n", andar);
-	fflush(stdout);
+//	printf("desce off %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 // -------------------------------------------------------------------------------------------------------
@@ -421,8 +421,8 @@ void bsp_cabineon(int andar)
 		break;
 	}
 	}
-	printf("cabine on %d\n", andar);
-	fflush(stdout);
+//	printf("cabine on %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -447,8 +447,8 @@ void bsp_cabineoff(int andar)
 		break;
 	}
 	}
-	printf("cabine off %d\n", andar);
-	fflush(stdout);
+//	printf("cabine off %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 // -------------------------------------------------------------------------------------------------------
@@ -474,8 +474,8 @@ void bsp_acionacarro(int andar)
 		break;
 	}
 	}
-	printf("acionacarro %d\n", andar);
-	fflush(stdout);
+//	printf("acionacarro %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 // ---------------------------------
@@ -552,8 +552,8 @@ void bsp_acionaporta(int andar, int sentido)
 		break;
 	}
 	}
-	printf("acionaporta %d %d\n", andar, sentido);
-	fflush(stdout);
+//	printf("acionaporta %d %d\n", andar, sentido);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -579,8 +579,8 @@ void bsp_visor(int andar)
 		break;
 	}
 	}
-	printf("atualizando visor %d\n", andar);
-	fflush(stdout);
+//	printf("atualizando visor %d\n", andar);
+//	fflush(stdout);
 	sendUDP(signal);
 }
 // ---------------------------------

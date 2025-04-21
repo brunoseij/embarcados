@@ -53,4 +53,12 @@ void BSP_ledOff(void);
 void bsp_on();
 void bsp_off();
 
+void bsp_acionaporta(int, int);
+void bsp_sobeon(int);
+void bsp_desceon(int);
+void bsp_cabineon(int);
+void bsp_cabineoff(int);
+void bsp_acionacarro(int);
+void bsp_visor(int);
+
 #endif // BSP_H_
