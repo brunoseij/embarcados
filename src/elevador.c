@@ -10,7 +10,7 @@ enum InternalSignals
 { /* internal signals */
   TIMEOUT_SIG = MAX_SIG
 };
-typedef struct PiscaTag
+typedef struct ElevadorTag
 {
 	/* protected: */
 	QActive super;
@@ -19,36 +19,37 @@ typedef struct PiscaTag
 	bool descendo;
 	/* private: */
 	QTimeEvt timeEvt;
-} Pisca;
+} Elevador;
 
-typedef struct Andar{
-	bool subir; // status do botao subir
-	bool descer; // status do botao descer
+typedef struct Andar
+{
+	bool subir;	  // status do botao subir
+	bool descer;  // status do botao descer
 	bool destino; // se alguem quer ir pra aquele andar (cabine)
 } Andar;
 
 /* protected: */
-static QState Elevador_initial(Pisca *const me, QEvt const *const e);
-static QState Abrindo_Porta(Pisca *const me, QEvt const *const e);
-static QState Porta_aberta(Pisca *const me, QEvt const *const e);
-static QState Fechando_Porta(Pisca *const me, QEvt const *const e);
-static QState Elevador_Descendo(Pisca *const me, QEvt const *const e);
-static QState Elevador_Subindo(Pisca *const me, QEvt const *const e);
+static QState Elevador_initial(Elevador *const me, QEvt const *const e);
+static QState Abrindo_Porta(Elevador *const me, QEvt const *const e);
+static QState Porta_aberta(Elevador *const me, QEvt const *const e);
+static QState Fechando_Porta(Elevador *const me, QEvt const *const e);
+static QState Elevador_Descendo(Elevador *const me, QEvt const *const e);
+static QState Elevador_Subindo(Elevador *const me, QEvt const *const e);
 
 /* Local objects -----------------------------------------------------------*/
-static Pisca l_pisca; /* the single instance of the Table active object */
+static Elevador l_elevador; /* the single instance of the Table active object */
 static Andar andar1;
 static Andar andar2;
 static Andar andar3;
 
 /* Global-scope objects ----------------------------------------------------*/
-QActive *const AO_Pisca = &l_pisca.super; /* "opaque" AO pointer */
+QActive *const AO_Elevador = &l_elevador.super; /* "opaque" AO pointer */
 
 /*..........................................................................*/
 
-void Pisca_ctor(void)
+void Elevador_ctor(void)
 {
-	Pisca *me = &l_pisca;
+	Elevador *me = &l_elevador;
 	QActive_ctor(&me->super, Q_STATE_CAST(&Elevador_initial));
 	QTimeEvt_ctorX(&me->timeEvt, &me->super, TIMEOUT_SIG, 0U);
 
@@ -57,10 +58,12 @@ void Pisca_ctor(void)
 	me->descendo = false;
 }
 
-void iniciarElevador() {
+void iniciarElevador()
+{
 	bsp_acionacarro(1);
 	bsp_visor(1);
-	for (int i = 1; i < 4; i++) {
+	for (int i = 1; i < 4; i++)
+	{
 		apagaBotaoSubindo(i);
 		apagaBotaoDescendo(i);
 		apagaBotaoCabine(i);
@@ -68,7 +71,7 @@ void iniciarElevador() {
 	}
 }
 
-static QState Elevador_initial(Pisca *const me, QEvt const *const e)
+static QState Elevador_initial(Elevador *const me, QEvt const *const e)
 {
 	(void)e; /* suppress the compiler warning about unused parameter */
 
@@ -109,34 +112,41 @@ static QState Elevador_initial(Pisca *const me, QEvt const *const e)
 	return Q_TRAN(&Abrindo_Porta);
 }
 
-int identificaDestinoSubida(Pisca *const me) {
+int identificaDestinoSubida(Elevador *const me)
+{
 	int posicaoElevador = me->pos;
 
-	if ((andar2.destino || andar2.subir) && posicaoElevador <= 2) {
+	if ((andar2.destino || andar2.subir) && posicaoElevador <= 2)
+	{
 		return 2;
 	}
 
-	if ((andar3.destino || andar3.subir) && posicaoElevador <= 3) {
+	if ((andar3.destino || andar3.subir) && posicaoElevador <= 3)
+	{
 		return 3;
 	}
 	return me->pos;
 }
 
-int identificaDestinoDescida(Pisca *const me) {
+int identificaDestinoDescida(Elevador *const me)
+{
 	int posicaoElevador = me->pos;
 
-	if ((andar2.destino || andar2.descer) && posicaoElevador >= 2) {
+	if ((andar2.destino || andar2.descer) && posicaoElevador >= 2)
+	{
 		return 2;
 	}
 
-	if ((andar1.destino || andar1.descer) && posicaoElevador >= 1) {
+	if ((andar1.destino || andar1.descer) && posicaoElevador >= 1)
+	{
 		return 1;
 	}
 
 	return me->pos;
 }
 
-void trataSinalPorta(enum DPPSignals sinal) {
+void trataSinalPorta(enum DPPSignals sinal)
+{
 	switch (sinal)
 	{
 	case PORTA1_SIG:
@@ -160,12 +170,14 @@ void trataSinalPorta(enum DPPSignals sinal) {
 	return;
 }
 
-void trataSinalSobe(enum DPPSignals sinal) {
+void trataSinalSobe(enum DPPSignals sinal)
+{
 	switch (sinal)
 	{
 	case SOBE1_SIG:
 	{
-		if (!andar1.subir) {
+		if (!andar1.subir)
+		{
 			bsp_sobeon(1);
 			andar1.subir = true;
 		}
@@ -173,7 +185,8 @@ void trataSinalSobe(enum DPPSignals sinal) {
 	}
 	case SOBE2_SIG:
 	{
-		if (!andar2.subir) {
+		if (!andar2.subir)
+		{
 			bsp_sobeon(2);
 			andar2.subir = true;
 		}
@@ -181,7 +194,8 @@ void trataSinalSobe(enum DPPSignals sinal) {
 	}
 	case SOBE3_SIG:
 	{
-		if (!andar3.subir) {
+		if (!andar3.subir)
+		{
 			bsp_sobeon(3);
 			andar3.subir = true;
 		}
@@ -193,12 +207,14 @@ void trataSinalSobe(enum DPPSignals sinal) {
 	return;
 }
 
-void trataSinalDesce(enum DPPSignals sinal) {
+void trataSinalDesce(enum DPPSignals sinal)
+{
 	switch (sinal)
 	{
 	case DESCE1_SIG:
 	{
-		if (!andar1.descer) {
+		if (!andar1.descer)
+		{
 			bsp_desceon(1);
 			andar1.descer = true;
 		}
@@ -206,7 +222,8 @@ void trataSinalDesce(enum DPPSignals sinal) {
 	}
 	case DESCE2_SIG:
 	{
-		if (!andar2.descer) {
+		if (!andar2.descer)
+		{
 			bsp_desceon(2);
 			andar2.descer = true;
 		}
@@ -214,7 +231,8 @@ void trataSinalDesce(enum DPPSignals sinal) {
 	}
 	case DESCE3_SIG:
 	{
-		if (!andar3.descer) {
+		if (!andar3.descer)
+		{
 			bsp_desceon(3);
 			andar3.descer = true;
 		}
@@ -226,7 +244,8 @@ void trataSinalDesce(enum DPPSignals sinal) {
 	return;
 }
 
-void trataSinalCabine(enum DPPSignals sinal) {
+void trataSinalCabine(enum DPPSignals sinal)
+{
 	switch (sinal)
 	{
 	case CABINE1_SIG:
@@ -253,7 +272,8 @@ void trataSinalCabine(enum DPPSignals sinal) {
 	return;
 }
 
-int getAndar(enum DPPSignals sinal) {
+int getAndar(enum DPPSignals sinal)
+{
 	int andar;
 	switch (sinal)
 	{
@@ -290,161 +310,177 @@ int getAndar(enum DPPSignals sinal) {
 	return andar;
 }
 
-void atualizaPosicao(Pisca *const me, int andar){
+void atualizaPosicao(Elevador *const me, int andar)
+{
 	me->pos = andar;
 	bsp_visor(me->pos);
 }
 
-void apagaBotaoSubindo(int andar) {
+void apagaBotaoSubindo(int andar)
+{
 	switch (andar)
 	{
-		case 1:
-		{
-			andar1.subir = false;
-			bsp_sobeoff(1);
-			break;
-		}
-		case 2:
-		{
-			andar2.subir = false;
-			bsp_sobeoff(2);
-			break;
-		}
-		case 3:
-		{
-			andar3.subir = false;
-			bsp_sobeoff(3);
-			break;
-		}
+	case 1:
+	{
+		andar1.subir = false;
+		bsp_sobeoff(1);
+		break;
+	}
+	case 2:
+	{
+		andar2.subir = false;
+		bsp_sobeoff(2);
+		break;
+	}
+	case 3:
+	{
+		andar3.subir = false;
+		bsp_sobeoff(3);
+		break;
+	}
 	}
 }
 
-void apagaBotaoDescendo(int andar) {
+void apagaBotaoDescendo(int andar)
+{
 	switch (andar)
 	{
-		case 1:
-		{
-			andar1.descer = false;
-			bsp_desceoff(1);
-			break;
-		}
-		case 2:
-		{
-			andar2.descer = false;
-			bsp_desceoff(2);
-			break;
-		}
-		case 3:
-		{
-			andar3.descer = false;
-			bsp_desceoff(3);
-			break;
-		}
+	case 1:
+	{
+		andar1.descer = false;
+		bsp_desceoff(1);
+		break;
+	}
+	case 2:
+	{
+		andar2.descer = false;
+		bsp_desceoff(2);
+		break;
+	}
+	case 3:
+	{
+		andar3.descer = false;
+		bsp_desceoff(3);
+		break;
+	}
 	}
 }
 
-void apagaBotaoCabine(int andar) {
+void apagaBotaoCabine(int andar)
+{
 	switch (andar)
 	{
-		case 1:
-		{
-			andar1.destino = false;
-			bsp_cabineoff(1);
-			break;
-		}
-		case 2:
-		{
-			andar2.destino = false;
-			bsp_cabineoff(2);
-			break;
-		}
-		case 3:
-		{
-			andar3.destino = false;
-			bsp_cabineoff(3);
-			break;
-		}
+	case 1:
+	{
+		andar1.destino = false;
+		bsp_cabineoff(1);
+		break;
+	}
+	case 2:
+	{
+		andar2.destino = false;
+		bsp_cabineoff(2);
+		break;
+	}
+	case 3:
+	{
+		andar3.destino = false;
+		bsp_cabineoff(3);
+		break;
+	}
 	}
 }
 
-bool temChamadaNaCabine(){
+bool temChamadaNaCabine()
+{
 	return andar1.destino || andar2.destino || andar3.destino;
 }
 
-bool temChamadaAndar(){
+bool temChamadaAndar()
+{
 	return andar1.subir || andar2.subir || andar3.subir || andar1.descer || andar2.descer || andar3.descer;
 }
 
-bool deveSubir(Pisca *const me){
-	if (me->descendo){
+bool deveSubir(Elevador *const me)
+{
+	if (me->descendo)
+	{
 		return false;
 	}
 
-	if (identificaDestinoSubida(me) == me->pos) {
+	if (identificaDestinoSubida(me) == me->pos)
+	{
 		return false;
 	}
 
 	bool subir;
-	switch(me->pos) {
-		case 1:
-		{
-			subir = andar2.destino || andar3.destino || andar2.subir || andar3.subir;
-			break;
-		}
-		case 2:
-		{
-			subir = andar3.destino || andar3.subir;
-			break;
-		}
-		case 3:
-		{	
-			subir = false;
-			break;
-		}
+	switch (me->pos)
+	{
+	case 1:
+	{
+		subir = andar2.destino || andar3.destino || andar2.subir || andar3.subir;
+		break;
+	}
+	case 2:
+	{
+		subir = andar3.destino || andar3.subir;
+		break;
+	}
+	case 3:
+	{
+		subir = false;
+		break;
+	}
 	}
 
 	return subir;
 }
 
-bool deveDescer(Pisca *const me){
-	if (me->subindo){
+bool deveDescer(Elevador *const me)
+{
+	if (me->subindo)
+	{
 		return false;
 	}
 
-	if (identificaDestinoDescida(me) == me->pos) {
+	if (identificaDestinoDescida(me) == me->pos)
+	{
 		return false;
 	}
 
 	bool descer;
-	switch(me->pos) {
-		case 1:
-		{
-			descer = false;
-			break;
-		}
-		case 2:
-		{
-			descer = andar1.destino || andar1.descer;
-			break;
-		}
-		case 3:
-		{	
-			descer = andar1.destino || andar2.destino || andar2.descer || andar1.descer;
-			break;
-		}
+	switch (me->pos)
+	{
+	case 1:
+	{
+		descer = false;
+		break;
+	}
+	case 2:
+	{
+		descer = andar1.destino || andar1.descer;
+		break;
+	}
+	case 3:
+	{
+		descer = andar1.destino || andar2.destino || andar2.descer || andar1.descer;
+		break;
+	}
 	}
 	return descer;
 }
 
-void abrirPorta(int andar) {
+void abrirPorta(int andar)
+{
 	bsp_acionaporta(andar, -1);
 }
 
-void fecharPorta(int andar) {
+void fecharPorta(int andar)
+{
 	bsp_acionaporta(andar, 1);
 }
 
-static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
+static QState Abrindo_Porta(Elevador *const me, QEvt const *const e)
 {
 	QState status;
 	switch (e->sig)
@@ -452,41 +488,53 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 	case Q_ENTRY_SIG:
 	{
 		abrirPorta(me->pos);
-		switch(me->pos) {
-			case 1: {
-				apagaBotaoCabine(me->pos);
-				apagaBotaoSubindo(me->pos);
-				apagaBotaoDescendo(me->pos);
-				me->subindo = true;
-				me->descendo = false;
-				break;
-			}
-			case 2: {
-				if (me->subindo) {
-					if (andar2.subir) {
-						apagaBotaoSubindo(me->pos);
-					} else if (!temChamadaNaCabine()){
-						apagaBotaoDescendo(me->pos);
-					}
-				} else {
-					if (andar2.descer) {
-						apagaBotaoDescendo(me->pos);
-					} else if (!temChamadaNaCabine()) {
-						apagaBotaoSubindo(me->pos);
-					}
-					
+		apagaBotaoCabine(me->pos);
+		switch (me->pos)
+		{
+		case 1:
+		{
+			apagaBotaoCabine(me->pos);
+			apagaBotaoSubindo(me->pos);
+			apagaBotaoDescendo(me->pos);
+			me->subindo = true;
+			me->descendo = false;
+			break;
+		}
+		case 2:
+		{
+			if (me->subindo)
+			{
+				if (andar2.subir)
+				{
+					apagaBotaoSubindo(me->pos);
 				}
-				apagaBotaoCabine(me->pos);
-				break;
+				else if (!temChamadaNaCabine())
+				{
+					apagaBotaoDescendo(me->pos);
+				}
 			}
-			case 3: {
-				apagaBotaoCabine(me->pos);
-				apagaBotaoSubindo(me->pos);
-				apagaBotaoDescendo(me->pos);
-				me->subindo = false;
-				me->descendo = true;
-				break;
+			else
+			{
+				if (andar2.descer)
+				{
+					apagaBotaoDescendo(me->pos);
+				}
+				else if (!temChamadaNaCabine())
+				{
+					apagaBotaoSubindo(me->pos);
+				}
 			}
+			break;
+		}
+		case 3:
+		{
+			apagaBotaoCabine(me->pos);
+			apagaBotaoSubindo(me->pos);
+			apagaBotaoDescendo(me->pos);
+			me->subindo = false;
+			me->descendo = true;
+			break;
+		}
 		}
 		status = Q_HANDLED();
 		break;
@@ -508,7 +556,8 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 	case DESCE2_SIG:
 	case DESCE3_SIG:
 	{
-		if (getAndar(e->sig) != me->pos) {
+		if (getAndar(e->sig) != me->pos)
+		{
 			trataSinalCabine(e->sig);
 			trataSinalSobe(e->sig);
 			trataSinalDesce(e->sig);
@@ -525,28 +574,33 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
-void armarTimerPorta(Pisca *const me) {
-	if (QTimeEvt_currCtr(&me->timeEvt) == 0) {
-		QTimeEvt_armX(&me->timeEvt , DOOR_TIMEOUT, 0);
+void armarTimerPorta(Elevador *const me)
+{
+	if (QTimeEvt_currCtr(&me->timeEvt) == 0)
+	{
+		QTimeEvt_armX(&me->timeEvt, DOOR_TIMEOUT, 0);
 	}
 }
 
-static QState Porta_aberta(Pisca *const me, QEvt const *const e)
+static QState Porta_aberta(Elevador *const me, QEvt const *const e)
 {
 	QState status;
 	switch (e->sig)
 	{
 	case Q_ENTRY_SIG:
 	{
-		if (me->subindo && !deveSubir(me)) {
+		if (me->subindo && !deveSubir(me))
+		{
 			me->subindo = false;
 		}
 
-		if (me->descendo && !deveDescer(me)) {
+		if (me->descendo && !deveDescer(me))
+		{
 			me->descendo = false;
 		}
 
-		if (temChamadaNaCabine() || temChamadaAndar()) {
+		if (temChamadaNaCabine() || temChamadaAndar())
+		{
 			armarTimerPorta(me);
 		}
 		status = Q_HANDLED();
@@ -562,7 +616,8 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 	case DESCE2_SIG:
 	case DESCE3_SIG:
 	{
-		if (getAndar(e->sig) != me->pos) {
+		if (getAndar(e->sig) != me->pos)
+		{
 			trataSinalSobe(e->sig);
 			trataSinalDesce(e->sig);
 			trataSinalCabine(e->sig);
@@ -585,68 +640,76 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
-void verificarChamadasAndar(Pisca *const me){
-	switch (me->pos) {
-		case 1:
+void verificarChamadasAndar(Elevador *const me)
+{
+	switch (me->pos)
+	{
+	case 1:
+	{
+		if (andar2.subir)
 		{
-			if (andar2.subir) {
-				andar2.destino = true;
-				break;
-			}
-			if (andar3.subir || andar3.descer) {
-				andar3.destino = true;
-				break;
-			}
-			if (andar2.descer) {
-				andar2.destino = true;
-				break;
-			}
-		}
-		case 2:
-		{
-			if (me->subindo)
-			{
-				if (andar3.subir || andar3.descer)
-				{
-					andar3.destino = true;
-				}
-				else if (andar1.subir || andar1.descer)
-				{
-					andar1.subir = true;
-				}
-			}
-			else
-			{
-				if (andar1.subir || andar1.descer)
-				{
-					andar1.subir = true;
-				}
-				else if (andar3.subir || andar3.descer)
-				{
-					andar3.destino = true;
-				}
-			}
+			andar2.destino = true;
 			break;
 		}
-		case 3:
+		if (andar3.subir || andar3.descer)
 		{
-			if (andar2.descer) {
-				andar2.destino = true;
-				break;
+			andar3.destino = true;
+			break;
+		}
+		if (andar2.descer)
+		{
+			andar2.destino = true;
+			break;
+		}
+	}
+	case 2:
+	{
+		if (me->subindo)
+		{
+			if (andar3.subir || andar3.descer)
+			{
+				andar3.destino = true;
 			}
-			if (andar1.descer || andar1.subir) {
-				andar1.destino = true;
-				break;
-			}
-			if (andar2.subir) {
-				andar2.destino = true;
-				break;
+			else if (andar1.subir || andar1.descer)
+			{
+				andar1.subir = true;
 			}
 		}
+		else
+		{
+			if (andar1.subir || andar1.descer)
+			{
+				andar1.subir = true;
+			}
+			else if (andar3.subir || andar3.descer)
+			{
+				andar3.destino = true;
+			}
+		}
+		break;
+	}
+	case 3:
+	{
+		if (andar2.descer)
+		{
+			andar2.destino = true;
+			break;
+		}
+		if (andar1.descer || andar1.subir)
+		{
+			andar1.destino = true;
+			break;
+		}
+		if (andar2.subir)
+		{
+			andar2.destino = true;
+			break;
+		}
+	}
 	}
 }
 
-static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
+static QState Fechando_Porta(Elevador *const me, QEvt const *const e)
 {
 	QState status;
 	switch (e->sig)
@@ -654,7 +717,8 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	case Q_ENTRY_SIG:
 	{
 		fecharPorta(me->pos);
-		if (!temChamadaNaCabine() || temChamadaAndar()) {
+		if (!temChamadaNaCabine() || temChamadaAndar())
+		{
 			verificarChamadasAndar(me);
 		}
 		status = Q_HANDLED();
@@ -664,12 +728,14 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	case PORTAFECHADA2_SIG:
 	case PORTAFECHADA3_SIG:
 	{
-		if (deveSubir(me)) {
+		if (deveSubir(me))
+		{
 			status = Q_TRAN(&Elevador_Subindo);
 			break;
 		}
 
-		if(deveDescer(me)) {
+		if (deveDescer(me))
+		{
 			status = Q_TRAN(&Elevador_Descendo);
 			break;
 		}
@@ -694,9 +760,12 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	case DESCE2_SIG:
 	case DESCE3_SIG:
 	{
-		if (getAndar(e->sig) == me->pos) {
+		if (getAndar(e->sig) == me->pos)
+		{
 			status = Q_TRAN(&Abrindo_Porta);
-		} else {
+		}
+		else
+		{
 			trataSinalSobe(e->sig);
 			trataSinalDesce(e->sig);
 			trataSinalCabine(e->sig);
@@ -713,7 +782,7 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
-static QState Elevador_Subindo(Pisca *const me, QEvt const *const e)
+static QState Elevador_Subindo(Elevador *const me, QEvt const *const e)
 {
 	QState status;
 	switch (e->sig)
@@ -772,7 +841,7 @@ static QState Elevador_Subindo(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
-static QState Elevador_Descendo(Pisca *const me, QEvt const *const e)
+static QState Elevador_Descendo(Elevador *const me, QEvt const *const e)
 {
 	QState status;
 	switch (e->sig)

@@ -31,9 +31,9 @@
 // <www.state-machine.com/licensing>
 // <info@state-machine.com>
 //============================================================================
-#include "qpc.h"   // QP/C real-time embedded framework
+#include "qpc.h"	  // QP/C real-time embedded framework
 #include "elevador.h" // DPP Application interface
-#include "bsp.h"   // Board Support Package
+#include "bsp.h"	  // Board Support Package
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,16 +66,16 @@ char *in_signals[] = {
 	"cabine3",		 // 11
 	"PortaAberta1",	 // 12
 	"PortaAberta2",	 // 13
-	"PortaAberta3",  // 14
+	"PortaAberta3",	 // 14
 	"PortaFechada1", // 15
 	"PortaFechada2", // 16
 	"PortaFechada3", // 17
-	"Andar1",        // 18
-	"Andar2",        // 19
-	"Andar3",        // 20
-	"Parado1",       // 21
-	"Parado2",       // 22
-	"Parado3",       // 23
+	"Andar1",		 // 18
+	"Andar2",		 // 19
+	"Andar3",		 // 20
+	"Parado1",		 // 21
+	"Parado2",		 // 22
+	"Parado3",		 // 23
 };
 
 static uint32_t l_rnd;
@@ -129,8 +129,8 @@ void *udpServer()
 				{
 
 					buf[recv_len] = '\0';
-//					printf("%s \n", buf);
-//					fflush(stdout);
+					//					printf("%s \n", buf);
+					//					fflush(stdout);
 					for (i = 0; i < 24; i++)
 					{
 						if (strcmp(buf, in_signals[i]) == 0)
@@ -315,8 +315,8 @@ void bsp_sobeon(int andar)
 		break;
 	}
 	}
-//	printf("sobe on %d\n", andar);
-//	fflush(stdout);
+	//	printf("sobe on %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -341,8 +341,8 @@ void bsp_sobeoff(int andar)
 		break;
 	}
 	}
-//	printf("sobe off %d\n", andar);
-//	fflush(stdout);
+	//	printf("sobe off %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -368,8 +368,8 @@ void bsp_desceon(int andar)
 		break;
 	}
 	}
-//	printf("desce on %d\n", andar);
-//	fflush(stdout);
+	//	printf("desce on %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -394,8 +394,8 @@ void bsp_desceoff(int andar)
 		break;
 	}
 	}
-//	printf("desce off %d\n", andar);
-//	fflush(stdout);
+	//	printf("desce off %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 // -------------------------------------------------------------------------------------------------------
@@ -421,8 +421,8 @@ void bsp_cabineon(int andar)
 		break;
 	}
 	}
-//	printf("cabine on %d\n", andar);
-//	fflush(stdout);
+	//	printf("cabine on %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -447,8 +447,8 @@ void bsp_cabineoff(int andar)
 		break;
 	}
 	}
-//	printf("cabine off %d\n", andar);
-//	fflush(stdout);
+	//	printf("cabine off %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 // -------------------------------------------------------------------------------------------------------
@@ -474,8 +474,8 @@ void bsp_acionacarro(int andar)
 		break;
 	}
 	}
-//	printf("acionacarro %d\n", andar);
-//	fflush(stdout);
+	//	printf("acionacarro %d\n", andar);
+	//	fflush(stdout);
 	sendUDP(signal);
 }
 // ---------------------------------
@@ -634,7 +634,7 @@ void BSP_start(void)
 {
 	// initialize event pools
 
-	static QF_MPOOL_EL(PiscaEvt) smlPoolSto[POOLSIZE];
+	static QF_MPOOL_EL(ElevadorEvt) smlPoolSto[POOLSIZE];
 	QF_poolInit(smlPoolSto, sizeof(smlPoolSto), sizeof(smlPoolSto[0]));
 
 	// initialize publish-subscribe
@@ -643,14 +643,14 @@ void BSP_start(void)
 
 	// instantiate and start AOs/threads...
 
-	static QEvtPtr l_piscaQueueSto[QUEUESIZE];
-	Pisca_ctor();
-	QActive_start(AO_Pisca,
-				  7U,					  // QP prio. of the AO
-				  l_piscaQueueSto,		  // event queue storage
-				  Q_DIM(l_piscaQueueSto), // queue length [events]
-				  (void *)0, 0U,		  // no stack storage
-				  (void *)0);			  // no initialization param
+	static QEvtPtr l_elevadorQueueSto[QUEUESIZE];
+	Elevador_ctor();
+	QActive_start(AO_Elevador,
+				  7U,						 // QP prio. of the AO
+				  l_elevadorQueueSto,		 // event queue storage
+				  Q_DIM(l_elevadorQueueSto), // queue length [events]
+				  (void *)0, 0U,			 // no stack storage
+				  (void *)0);				 // no initialization param
 }
 //............................................................................
 void BSP_terminate(int16_t result)

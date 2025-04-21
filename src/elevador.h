@@ -40,25 +40,25 @@ enum DPPSignals
 	MAX_SIG /* the last signal */
 };
 
-typedef struct PiscaEvtTag
+typedef struct ElevadorEvtTag
 {
 	/* protected: */
 	QEvt super;
 
 	/* public: */
 	uint8_t i;
-} PiscaEvt;
+} ElevadorEvt;
 
 #define QUEUESIZE ((uint8_t)5)
 #define POOLSIZE ((uint8_t)5)
 
-void Pisca_ctor(void);
+void Elevador_ctor(void);
 void apagaBotaoSubindo(int);
 void apagaBotaoDescendo(int);
 void apagaBotaoCabine(int);
 void fecharPorta(int);
 void iniciarElevador();
 
-extern QActive *const AO_Pisca;
+extern QActive *const AO_Elevador;
 
 #endif /* ELEVADOR_H_ */
