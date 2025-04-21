@@ -32,7 +32,7 @@
 // <info@state-machine.com>
 //============================================================================
 #include "qpc.h"   // QP/C real-time embedded framework
-#include "pisca.h" // DPP Application interface
+#include "elevador.h" // DPP Application interface
 #include "bsp.h"   // Board Support Package
 
 //............................................................................

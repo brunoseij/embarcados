@@ -41,17 +41,10 @@
 
 void BSP_init(int argc, char *argv[]);
 void BSP_start(void);
-void BSP_displayPaused(uint8_t paused);
-void BSP_displayPhilStat(uint8_t n, uint8_t st, char const *stat);
 void BSP_terminate(int16_t result);
 
 void BSP_randomSeed(uint32_t seed); // random seed
 uint32_t BSP_random(void);          // pseudo-random generator
-
-void BSP_ledOn(void);
-void BSP_ledOff(void);
-void bsp_on();
-void bsp_off();
 
 void bsp_acionaporta(int, int);
 void bsp_sobeon(int);
@@ -60,5 +53,7 @@ void bsp_cabineon(int);
 void bsp_cabineoff(int);
 void bsp_acionacarro(int);
 void bsp_visor(int);
+void bsp_sobeoff(int);
+void bsp_desceoff(int);
 
 #endif // BSP_H_

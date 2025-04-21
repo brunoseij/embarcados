@@ -1,11 +1,4 @@
-/*
- * pisca.c
- *
- *  Created on: 14 de mar de 2017
- *      Author: tamandua32
- */
-
-#include "pisca.h"
+#include "elevador.h"
 #include "bsp.h"
 #include <stdio.h>
 
@@ -60,11 +53,23 @@ void Pisca_ctor(void)
 	QTimeEvt_ctorX(&me->timeEvt, &me->super, TIMEOUT_SIG, 0U);
 
 	me->pos = 1;
+	me->subindo = true;
+	me->descendo = false;
+}
+
+void iniciarElevador() {
+	bsp_acionacarro(1);
+	bsp_visor(1);
+	for (int i = 1; i < 4; i++) {
+		apagaBotaoSubindo(i);
+		apagaBotaoDescendo(i);
+		apagaBotaoCabine(i);
+		fecharPorta(i);
+	}
 }
 
 static QState Elevador_initial(Pisca *const me, QEvt const *const e)
 {
-
 	(void)e; /* suppress the compiler warning about unused parameter */
 
 	QActive_subscribe(&me->super, PORTA1_SIG);
@@ -99,21 +104,19 @@ static QState Elevador_initial(Pisca *const me, QEvt const *const e)
 	QActive_subscribe(&me->super, PARADO2_SIG);
 	QActive_subscribe(&me->super, PARADO3_SIG);
 
+	iniciarElevador();
+
 	return Q_TRAN(&Abrindo_Porta);
 }
 
 int identificaDestinoSubida(Pisca *const me) {
 	int posicaoElevador = me->pos;
 
-	// if ((andar1.destino || andar1.subir) && posicaoElevador == 1) {
-	// 	return 1;
-	// }
-
-	if ((andar2.destino || andar2.subir || andar2.descer) && posicaoElevador <= 2) {
+	if ((andar2.destino || andar2.subir) && posicaoElevador <= 2) {
 		return 2;
 	}
 
-	if ((andar3.destino || andar3.subir || andar3.descer) && posicaoElevador <= 3) {
+	if ((andar3.destino || andar3.subir) && posicaoElevador <= 3) {
 		return 3;
 	}
 	return me->pos;
@@ -122,49 +125,16 @@ int identificaDestinoSubida(Pisca *const me) {
 int identificaDestinoDescida(Pisca *const me) {
 	int posicaoElevador = me->pos;
 
-//	if ((andar3.destino || andar3.descer) && posicaoElevador == 3) {
-//		return 3;
-//	}
-
-	if ((andar2.destino || andar2.descer || andar2.subir) && posicaoElevador >= 2) {
+	if ((andar2.destino || andar2.descer) && posicaoElevador >= 2) {
 		return 2;
 	}
 
-	if ((andar1.destino || andar1.descer || andar1.subir) && posicaoElevador >= 1) {
+	if ((andar1.destino || andar1.descer) && posicaoElevador >= 1) {
 		return 1;
 	}
 
 	return me->pos;
 }
-
-bool DeveSubirParaDescer(Pisca *const me) {
-	int posicaoElevador = me->pos;
-
-	if ((andar2.descer) && posicaoElevador <=2 ){
-		return true;
-	}
-
-	if ((andar3.descer) && posicaoElevador <=3 ){
-		return true;
-	}
-
-	return false;
-}
-
-bool DeveDescerParaSubir(Pisca *const me) {
-	int posicaoElevador = me->pos;
-
-	if (andar2.subir && posicaoElevador > 2) {
-		return true;
-	}
-
-	if (andar1.subir && posicaoElevador > 1) {
-		return true;
-	}
-	return false;
-}
-
-
 
 void trataSinalPorta(enum DPPSignals sinal) {
 	switch (sinal)
@@ -261,26 +231,20 @@ void trataSinalCabine(enum DPPSignals sinal) {
 	{
 	case CABINE1_SIG:
 	{
-		if (!andar1.destino) {
-			bsp_cabineon(1);
-			andar1.destino = true;
-		}
+		bsp_cabineon(1);
+		andar1.destino = true;
 		break;
 	}
 	case CABINE2_SIG:
 	{
-		if (!andar2.destino) {
-			bsp_cabineon(2);
-			andar2.destino = true;
-		}
+		bsp_cabineon(2);
+		andar2.destino = true;
 		break;
 	}
 	case CABINE3_SIG:
 	{
-		if (!andar3.destino) {
-			bsp_cabineon(3);
-			andar3.destino = true;
-		}
+		bsp_cabineon(3);
+		andar3.destino = true;
 		break;
 	}
 	default:
@@ -356,8 +320,6 @@ void apagaBotaoSubindo(int andar) {
 }
 
 void apagaBotaoDescendo(int andar) {
-	printf("apagando botao descer%d\n", andar);
-	fflush(stdout);
 	switch (andar)
 	{
 		case 1:
@@ -423,7 +385,6 @@ bool deveSubir(Pisca *const me){
 	}
 
 	bool subir;
-	// olhar a posicao do elevador e a posicao do destino
 	switch(me->pos) {
 		case 1:
 		{
@@ -455,7 +416,6 @@ bool deveDescer(Pisca *const me){
 	}
 
 	bool descer;
-	// olhar a posicao do elevador e a posicao do destino
 	switch(me->pos) {
 		case 1:
 		{
@@ -469,7 +429,7 @@ bool deveDescer(Pisca *const me){
 		}
 		case 3:
 		{	
-			descer = andar1.destino || andar2.destino || andar1.descer || andar2.descer;
+			descer = andar1.destino || andar2.destino || andar2.descer || andar1.descer;
 			break;
 		}
 	}
@@ -502,14 +462,22 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 				break;
 			}
 			case 2: {
-				apagaBotaoCabine(me->pos);
 				if (me->subindo) {
-					apagaBotaoSubindo(me->pos);
-					break;
+					if (andar2.subir) {
+						apagaBotaoSubindo(me->pos);
+					} else if (!temChamadaNaCabine()){
+						apagaBotaoDescendo(me->pos);
+					}
 				} else {
-					apagaBotaoDescendo(me->pos);
-					break;
+					if (andar2.descer) {
+						apagaBotaoDescendo(me->pos);
+					} else if (!temChamadaNaCabine()) {
+						apagaBotaoSubindo(me->pos);
+					}
+					
 				}
+				apagaBotaoCabine(me->pos);
+				break;
 			}
 			case 3: {
 				apagaBotaoCabine(me->pos);
@@ -557,6 +525,12 @@ static QState Abrindo_Porta(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
+void armarTimerPorta(Pisca *const me) {
+	if (QTimeEvt_currCtr(&me->timeEvt) == 0) {
+		QTimeEvt_armX(&me->timeEvt , DOOR_TIMEOUT, 0);
+	}
+}
+
 static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 {
 	QState status;
@@ -572,23 +546,9 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 			me->descendo = false;
 		}
 
-		if (temChamadaNaCabine() || temChamadaAndar()) { // se tem chamada de andar que nao é o que a cabine ta parada
-			QTimeEvt_armX(&me->timeEvt , DOOR_TIMEOUT, 0);
+		if (temChamadaNaCabine() || temChamadaAndar()) {
+			armarTimerPorta(me);
 		}
-
-		if (!temChamadaNaCabine() && temChamadaAndar()) {
-			if (DeveSubirParaDescer(me)) {
-				me->subindo = true;
-				me->descendo = false;
-			} else if (DeveDescerParaSubir(me)) {
-				me->descendo = true;
-				me->subindo = false;
-			}
-		}
-		// se nao tem chamada na cabine, ir até o andar que chamou
-
-		printf("Porta aberta\n");
-		fflush(stdout);
 		status = Q_HANDLED();
 		break;
 	}
@@ -606,10 +566,9 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 			trataSinalSobe(e->sig);
 			trataSinalDesce(e->sig);
 			trataSinalCabine(e->sig);
-			status = Q_TRAN(&Fechando_Porta);
-		} else {
-			status = Q_HANDLED();
+			armarTimerPorta(me);
 		}
+		status = Q_HANDLED();
 		break;
 	}
 	case TIMEOUT_SIG:
@@ -626,6 +585,67 @@ static QState Porta_aberta(Pisca *const me, QEvt const *const e)
 	return status;
 }
 
+void verificarChamadasAndar(Pisca *const me){
+	switch (me->pos) {
+		case 1:
+		{
+			if (andar2.subir) {
+				andar2.destino = true;
+				break;
+			}
+			if (andar3.subir || andar3.descer) {
+				andar3.destino = true;
+				break;
+			}
+			if (andar2.descer) {
+				andar2.destino = true;
+				break;
+			}
+		}
+		case 2:
+		{
+			if (me->subindo)
+			{
+				if (andar3.subir || andar3.descer)
+				{
+					andar3.destino = true;
+				}
+				else if (andar1.subir || andar1.descer)
+				{
+					andar1.subir = true;
+				}
+			}
+			else
+			{
+				if (andar1.subir || andar1.descer)
+				{
+					andar1.subir = true;
+				}
+				else if (andar3.subir || andar3.descer)
+				{
+					andar3.destino = true;
+				}
+			}
+			break;
+		}
+		case 3:
+		{
+			if (andar2.descer) {
+				andar2.destino = true;
+				break;
+			}
+			if (andar1.descer || andar1.subir) {
+				andar1.destino = true;
+				break;
+			}
+			if (andar2.subir) {
+				andar2.destino = true;
+				break;
+			}
+		}
+	}
+}
+
 static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 {
 	QState status;
@@ -633,9 +653,10 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
-		printf("Fechando porta\n");
-		fflush(stdout);
 		fecharPorta(me->pos);
+		if (!temChamadaNaCabine() || temChamadaAndar()) {
+			verificarChamadasAndar(me);
+		}
 		status = Q_HANDLED();
 		break;
 	}
@@ -646,24 +667,11 @@ static QState Fechando_Porta(Pisca *const me, QEvt const *const e)
 		if (deveSubir(me)) {
 			status = Q_TRAN(&Elevador_Subindo);
 			break;
-//			printf("elevador deve subir\n");
-//			fflush(stdout);
-		}
-		
-		if(deveDescer(me)) {
-//			printf("elevador deve descer\n");
-			status = Q_TRAN(&Elevador_Descendo);
-			break;
 		}
 
-		if (!temChamadaNaCabine() && temChamadaAndar()) {
-			if (DeveSubirParaDescer(me)) {
-				status = Q_TRAN(&Elevador_Subindo);
-				break;
-			} else if (DeveDescerParaSubir(me)) {
-				status = Q_TRAN(&Elevador_Descendo);
-				break;
-			}
+		if(deveDescer(me)) {
+			status = Q_TRAN(&Elevador_Descendo);
+			break;
 		}
 
 		status = Q_TRAN(&Abrindo_Porta);
@@ -712,11 +720,9 @@ static QState Elevador_Subindo(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
-		printf("elevador subindo para %d\n", identificaDestinoSubida(me));
-		fflush(stdout);
 		me->subindo = true;
 		me->descendo = false;
-		bsp_acionacarro(identificaDestinoSubida(me));// verificar pra qual q tem q subir, identificar o mais perto
+		bsp_acionacarro(identificaDestinoSubida(me));
 		status = Q_HANDLED();
 		break;
 	}
@@ -732,15 +738,9 @@ static QState Elevador_Subindo(Pisca *const me, QEvt const *const e)
 	case PARADO2_SIG:
 	case PARADO3_SIG:
 	{
-		// atualizar posicao, apagar a luz subindo e a cabine
 		atualizaPosicao(me, getAndar(e->sig));
 
 		status = Q_TRAN(&Abrindo_Porta);
-
-		// apagaBotaoSubindo(getAndar(e->sig));
-		// apagaBotaoCabine(getAndar(e->sig));	
-		// se subiu pra descer, apaga o descer tbm
-		// trataSinalParado(e->sig, me);
 		break;
 	}
 	case SOBE1_SIG:
@@ -752,8 +752,6 @@ static QState Elevador_Subindo(Pisca *const me, QEvt const *const e)
 	{
 		trataSinalCabine(e->sig);
 		trataSinalSobe(e->sig);
-//		printf("elevador subindo para %d\n", identificaDestinoSubida(me));
-		fflush(stdout);
 		bsp_acionacarro(identificaDestinoSubida(me));
 		status = Q_HANDLED();
 	}
@@ -781,11 +779,9 @@ static QState Elevador_Descendo(Pisca *const me, QEvt const *const e)
 	{
 	case Q_ENTRY_SIG:
 	{
-		printf("elevador descendo para %d\n", identificaDestinoDescida(me));
-		fflush(stdout);
 		me->descendo = true;
 		me->subindo = false;
-		bsp_acionacarro(identificaDestinoDescida(me)); // verificar pra qual q tem q subir, identificar o mais perto
+		bsp_acionacarro(identificaDestinoDescida(me));
 		status = Q_HANDLED();
 		break;
 	}
@@ -804,9 +800,6 @@ static QState Elevador_Descendo(Pisca *const me, QEvt const *const e)
 		status = Q_TRAN(&Abrindo_Porta);
 		atualizaPosicao(me, getAndar(e->sig));
 
-		// apagaBotaoDescendo(getAndar(e->sig));
-		// apagaBotaoCabine(getAndar(e->sig));
-
 		break;
 	}
 	case DESCE1_SIG:
@@ -816,8 +809,6 @@ static QState Elevador_Descendo(Pisca *const me, QEvt const *const e)
 	case CABINE2_SIG:
 	case CABINE3_SIG:
 	{
-//		printf("elevador descendo para %d\n", identificaDestinoDescida(me));
-		fflush(stdout);
 		trataSinalDesce(e->sig);
 		trataSinalCabine(e->sig);
 		bsp_acionacarro(identificaDestinoDescida(me));

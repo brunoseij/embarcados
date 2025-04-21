@@ -32,7 +32,7 @@
 // <info@state-machine.com>
 //============================================================================
 #include "qpc.h"   // QP/C real-time embedded framework
-#include "pisca.h" // DPP Application interface
+#include "elevador.h" // DPP Application interface
 #include "bsp.h"   // Board Support Package
 
 #include <stdio.h>
@@ -552,8 +552,6 @@ void bsp_acionaporta(int andar, int sentido)
 		break;
 	}
 	}
-//	printf("acionaporta %d %d\n", andar, sentido);
-//	fflush(stdout);
 	sendUDP(signal);
 }
 
@@ -579,22 +577,8 @@ void bsp_visor(int andar)
 		break;
 	}
 	}
-//	printf("atualizando visor %d\n", andar);
-//	fflush(stdout);
 	sendUDP(signal);
 }
-// ---------------------------------
-
-#ifdef Q_SPY
-enum
-{
-	PHILO_STAT = QS_USER,
-	PAUSED_STAT,
-};
-
-// QSpy source IDs
-static QSpyId const l_clock_tick = {QS_AP_ID};
-#endif
 
 //============================================================================
 Q_NORETURN Q_onError(char const *const module, int_t const id)

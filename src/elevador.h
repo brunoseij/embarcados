@@ -1,12 +1,12 @@
 /*
- * pisca.h
+ * elevador.h
  *
  *  Created on: 14 de mar de 2017
  *      Author: tamandua32
  */
 
-#ifndef PISCA_H_
-#define PISCA_H_
+#ifndef ELEVADOR_H_
+#define ELEVADOR_H_
 #include "qp_port.h"
 
 enum DPPSignals
@@ -37,7 +37,6 @@ enum DPPSignals
 	PARADO3_SIG,
 	MAX_PUB_SIG, /* the last published signal */
 
-	B2_SIG, /* posted direclty to Pisca from BSP */
 	MAX_SIG /* the last signal */
 };
 
@@ -54,7 +53,12 @@ typedef struct PiscaEvtTag
 #define POOLSIZE ((uint8_t)5)
 
 void Pisca_ctor(void);
+void apagaBotaoSubindo(int);
+void apagaBotaoDescendo(int);
+void apagaBotaoCabine(int);
+void fecharPorta(int);
+void iniciarElevador();
 
 extern QActive *const AO_Pisca;
 
-#endif /* PISCA_H_ */
+#endif /* ELEVADOR_H_ */
